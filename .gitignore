@@ -1,0 +1,51 @@
+# Rust specific ignores
+/rust/**/target/
+/rust/**/*.rs.bk
+/rust/**/Cargo.lock
+/rust/**/debug/
+/rust/**/release/
+
+# Python specific ignores
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+/python/**/build/
+/python/**/develop-eggs/
+/python/**/dist/
+/python/**/downloads/
+/python/**/eggs/
+/python/**/.eggs/
+/python/**/lib/
+/python/**/lib64/
+/python/**/parts/
+/python/**/sdist/
+/python/**/var/
+/python/**/*.egg-info/
+/python/**/.installed.cfg
+/python/**/*.egg
+
+# Virtual environments
+/python/**/venv/
+/python/**/ENV/
+/python/**/.env/
+/python/**/.venv/
+
+# Node.js ignores
+node_modules/
+/frontend/.next/
+/frontend/out/
+npm-debug.log*
+
+*.zip
+*.tar.gz
+
+# Log files
+*.log
+logs/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
