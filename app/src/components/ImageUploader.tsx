@@ -48,9 +48,8 @@ export default function ImageUploader({ onImageUpload }: ImageUploaderProps) {
                 <motion.div 
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
-                    className="flex flex-col items-center justify-center gap-4" {...getRootProps()}
-                    >
-
+                    className="flex flex-col items-center justify-center gap-4">
+        
                     {isDragActive ? (
                         <ImageIcon className="w-16 h-16 text-white" />
                     ) : (
@@ -64,7 +63,7 @@ export default function ImageUploader({ onImageUpload }: ImageUploaderProps) {
                                 : "Upload an image"}
                         </p>
                         <p className="text-gray-400 text-sm mt-2">
-                            Drag and drop an image 
+                            Drag and drop an image, or click to select a file 
                         </p>
                     </div>
                 </motion.div>
