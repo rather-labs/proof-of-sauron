@@ -37,15 +37,29 @@ export default function ImageUploader({ onImageUpload }: ImageUploaderProps) {
             transition={{ duration: 0.3 }}
             whileHover={{ scale: 1.05 }}>
 
-            <input {...getInputProps()} />
             <div className={`
                 border-2 border-dashed border-gray-300 rounded-xl max-w-xl text-center 
                 cursor-pointers transition-all duration-300 hover:border--400 break-all p-12 
                 ${isDragActive
                     ? "border-white bg-white/10" 
                     : "border-gray-600 hover:border-white/5"}`}>
-                <motion.div whileHover={{ scale: 1.1 }}>
-                    
+
+                <input {...getInputProps()} />
+                <motion.div 
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}>
+
+                    {isDragActive ? (
+                        <ImageIcon className="w-16 h-16 text-white" />
+                    ) : (
+                        <Upload className="w-16 h-16 text-white" />
+                    )}
+
+                    <p className="text-gray-400 text-sm mt-4">
+                        {isDragActive
+                            ? "Drop the image here"
+                            : "Drag and drop an image here, or click to select"}
+                    </p>
                 </motion.div>
             </div>
         </motion.div>
