@@ -47,7 +47,9 @@ export default function ImageUploader({ onImageUpload }: ImageUploaderProps) {
                 <input {...getInputProps()} />
                 <motion.div 
                     whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}>
+                    whileTap={{ scale: 0.9 }}
+                    className="flex flex-col items-center justify-center gap-4" {...getRootProps()}
+                    >
 
                     {isDragActive ? (
                         <ImageIcon className="w-16 h-16 text-white" />
@@ -55,11 +57,16 @@ export default function ImageUploader({ onImageUpload }: ImageUploaderProps) {
                         <Upload className="w-16 h-16 text-white" />
                     )}
 
-                    <p className="text-gray-400 text-sm mt-4">
-                        {isDragActive
-                            ? "Drop the image here"
-                            : "Drag and drop an image here, or click to select"}
-                    </p>
+                    <div className="text-white">
+                        <p className="text-xl font-medium mt-4">
+                            {isDragActive
+                                ? "Drop the image here"
+                                : "Upload an image"}
+                        </p>
+                        <p className="text-gray-400 text-sm mt-2">
+                            Drag and drop an image 
+                        </p>
+                    </div>
                 </motion.div>
             </div>
         </motion.div>
