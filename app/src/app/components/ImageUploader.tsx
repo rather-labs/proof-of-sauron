@@ -11,14 +11,17 @@ import { motion } from "framer-motion";
 interface ImageUploaderProps {
     onImageUpload: (file: File) => void;
 }
-export default function ImageUploader({ onImageUpload }: ImageUploaderProps) {
+export default function ImageUploader() {
+    const [uploadedFile, setUploadedFile] = useState<File>();
+
     const onDrop = useCallback((acceptedFiles: File[]) => {
         const file = acceptedFiles[0];
         if (file) {
             const url = URL.createObjectURL(file);
-            onImageUpload(file);
+            console.log(acceptedFiles);
+            setUploadedFile(file);
         }
-      }, [onImageUpload]);
+      }, []);
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
@@ -39,10 +42,11 @@ export default function ImageUploader({ onImageUpload }: ImageUploaderProps) {
 
             <div className={`
                 border-2 border-dashed border-gray-300 rounded-xl max-w-xl text-center 
-                cursor-pointers transition-all duration-300 hover:border--400 break-all p-12 
+                cursor-pointer transition-all duration-300 hover:border-gray-600/50 break-all p-12 
                 ${isDragActive
                     ? "border-white bg-white/10" 
-                    : "border-gray-600 hover:border-white/5"}`}>
+                    : "border-gray-600 hover:border-white/5"}`} 
+                    {...getRootProps()}>
 
                 <input {...getInputProps()} />
                 <motion.div 
