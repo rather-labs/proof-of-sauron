@@ -11,20 +11,6 @@ __pycache__/
 *$py.class
 *.so
 .Python
-/python/**/build/
-/python/**/develop-eggs/
-/python/**/dist/
-/python/**/downloads/
-/python/**/eggs/
-/python/**/.eggs/
-/python/**/lib/
-/python/**/lib64/
-/python/**/parts/
-/python/**/sdist/
-/python/**/var/
-/python/**/*.egg-info/
-/python/**/.installed.cfg
-/python/**/*.egg
 
 # Virtual environments
 /python/**/venv/
@@ -38,6 +24,11 @@ node_modules/
 /frontend/out/
 npm-debug.log*
 
+# Common data/binary files
+*.bin
+*.dat
+*.db
+*.sqlite
 *.zip
 *.tar.gz
 
