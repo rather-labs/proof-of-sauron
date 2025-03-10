@@ -5,14 +5,17 @@ import { useState, useCallback } from "react";
 import { Upload, Image as ImageIcon } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 import { motion } from "framer-motion";
-
-
+import { fileURLToPath } from "url";
 
 interface ImageUploaderProps {
     onImageUpload: (file: File) => void;
 }
-export default function ImageUploader() {
-    const [uploadedFile, setUploadedFile] = useState<File>();
+export default function ImageUploader({ onImageUpload }: ImageUploaderProps) {
+    const [uploadedFile, setUploadedFile] = useState<File | null >(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [isUploading, setIsUploading] = useState<boolean>(false);
+    const [uploading, setUploading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const onDrop = useCallback((acceptedFiles: File[]) => {
         const file = acceptedFiles[0];
@@ -20,8 +23,36 @@ export default function ImageUploader() {
             const url = URL.createObjectURL(file);
             console.log(acceptedFiles);
             setUploadedFile(file);
+            setPreviewUrl(url);
+            console.log(file);
+            console.log(url);
         }
-      }, []);
+    }, []);
+
+    const uploadFile = async (file: File) => {
+
+        setUploading(true);
+        setError(null);
+
+        const formData = new FormData();
+        formData.append("file", file);
+        
+        try {
+            const response = await fetch("/api/upload", {
+                method: "POST",
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to upload image");
+            }
+        } catch(err) {
+            setUploading
+            console.error(err);
+        } finally {
+            setUploading(false);
+        }
+    }
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
@@ -38,15 +69,16 @@ export default function ImageUploader() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            whileHover={{ scale: 1.05 }}>
+            whileHover={{ scale: 1.05 }} >
 
             <div className={`
                 border-2 border-dashed border-gray-300 rounded-xl max-w-xl text-center 
                 cursor-pointer transition-all duration-300 hover:border-gray-600/50 break-all p-12 
-                ${isDragActive
+                ${ isDragActive
                     ? "border-white bg-white/10" 
-                    : "border-gray-600 hover:border-white/5"}`} 
-                    {...getRootProps()}>
+                    : "border-gray-600 hover:border-white/5" }
+                `} 
+                {...getRootProps()}>
 
                 <input {...getInputProps()} />
                 <motion.div 
@@ -54,17 +86,18 @@ export default function ImageUploader() {
                     whileTap={{ scale: 0.9 }}
                     className="flex flex-col items-center justify-center gap-4">
         
-                    {isDragActive ? (
-                        <ImageIcon className="w-16 h-16 text-white" />
-                    ) : (
-                        <Upload className="w-16 h-16 text-white" />
-                    )}
-
+                    { previewUrl 
+                        ? ( <Image src={previewUrl} alt="Uploaded Image" width={200} height={200} /> )
+                        : isDragActive 
+                            ? ( <ImageIcon className="w-16 h-16 text-white" /> ) 
+                            : ( <Upload className="w-16 h-16 text-white" /> )
+                    }
                     <div className="text-white">
                         <p className="text-xl font-medium mt-4">
                             {isDragActive
                                 ? "Drop the image here"
-                                : "Upload an image"}
+                                : "Upload an image"
+                            }
                         </p>
                         <p className="text-gray-400 text-sm mt-2">
                             Drag and drop an image, or click to select a file 
