@@ -20,9 +20,11 @@ class SauronCore:
             # Open an image file
             img = Image.open(image_path)
             print(f"Successfully opened image: {img}")
+            return img
         
         except Exception as e:
-            print(f"Error: {e}")
+            print(f"Error processing image: {e}")
+            return None
 
 def main():
     core = SauronCore(tile_size=128)
