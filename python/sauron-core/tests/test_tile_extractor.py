@@ -53,7 +53,11 @@ def test_extract_tile_rectangle(extractor, rectangle_image):
     assert tile_width == 64  # 256/4
     assert tile_height == 64  # 512/8
 
+def test_rectangle_top_letf_tile(extractor, rectangle_image):
+    """Test extraction of top-left tile"""
 
-    # Top-left corner
+    img_array = np.array(rectangle_image)
+    n_cols, n_rows, tile_width, tile_height = extractor.compute_tile_dimensions(rectangle_image)
+    
     top_left = extractor.extract_tile(img_array, 0, 0, tile_width, tile_height)
     assert top_left['position'] == (0, 0, 64, 64)
