@@ -1,5 +1,7 @@
 from PIL import Image
 import numpy as np
+import pandas as pd
+
 import math
 
 class TileExtractor:
@@ -34,4 +36,21 @@ class TileExtractor:
             'col': col,
             'position': (left, top, right, bottom),
         }
+    
+    def compute_tiles(self, img, dataFrame=False):
+        """Extract all tiles from an image"""
+        
+        img_array = np.array(img)
+        n_cols, n_rows, tile_width, tile_height = self.compute_tile_dimensions(img)
+        
+        tiles = []
+        for row in range(n_rows):
+            for col in range(n_cols):
+                tile = self.extract_tile(img_array, row, col, tile_width, tile_height)
+                tiles.append(tile)
+        
+        if dataFrame:
+            return pd.DataFrame(tiles)
+        
+        return tiles
     
