@@ -6,7 +6,7 @@ from email.mime import image
 
 class SauronCore:
     
-    def __init__(self, tile_size=64):
+    def __init__(self, tile_size):
         self.tile_size = TileExtractor(tile_size)
     
     def process_image(self):
@@ -19,6 +19,9 @@ class SauronCore:
 
             # Open an image file
             img = Image.open(image_path)
+
+            self.tile_size.compute_tiles(img)
+
             print(f"Successfully opened image: {img}")
             return img
         
@@ -27,7 +30,7 @@ class SauronCore:
             return None
 
 def main():
-    core = SauronCore(tile_size=128)
+    core = SauronCore(tile_size=64)
     core.process_image()
 
 if __name__ == "__main__":
