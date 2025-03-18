@@ -6,9 +6,11 @@ class TileExtractor:
     def __init__(self, tile_size=64):
         self.tile_size = tile_size
 
-    def compute_tile_dimensions(self, img_width, img_height):
+    def compute_tile_dimensions(self, img):
         """Calculate tile grid dimensions based on image size"""
         
+        img_width, img_height = img.size
+
         n_cols = max(1, img_width // self.tile_size)
         n_rows = max(1, img_height // self.tile_size)
         
@@ -32,3 +34,4 @@ class TileExtractor:
             'col': col,
             'position': (left, top, right, bottom),
         }
+    

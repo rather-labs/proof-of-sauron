@@ -9,17 +9,21 @@ def extractor():
 
 @pytest.fixture
 def square_image():
-    return Image.new('RGB', (256, 256))    
+    return Image.new('RGB', (256, 256))
+
+@pytest.fixture
+def rectangle_image():
+    return Image.new('RGB', (256, 512))
 
 def test_initialization(extractor):
     """Test that the TileExtractor initializes with correct parameters"""
     
     assert extractor.tile_size == 64
 
-def test_compute_tile_dimensions(extractor):
+def test_compute_tile_dimensions(extractor, square_image):
     """Test that the tile dimensions are calculated correctly"""
-    
-    n_cols, n_rows, tile_width, tile_height = extractor.compute_tile_dimensions(256, 256)
+
+    n_cols, n_rows, tile_width, tile_height = extractor.compute_tile_dimensions(square_image)
 
     assert n_cols == 4
     assert n_rows == 4
@@ -36,3 +40,20 @@ def test_extract_tile(square_image):
     assert tile['row'] == 0
     assert tile['col'] == 0
     assert tile['position'] == (0, 0, 64, 64)
+
+def test_extract_tile_rectangle(extractor, rectangle_image):
+    """Test that a single tile is extracted correctly from a rectangle image"""
+    
+    img_array = np.array(rectangle_image)
+    n_cols, n_rows, tile_width, tile_height = extractor.compute_tile_dimensions(rectangle_image)
+        
+    # Verify dimensions
+    assert n_cols == 4  # 256/64 = 4
+    assert n_rows == 8  # 512/64 = 8
+    assert tile_width == 64  # 256/4
+    assert tile_height == 64  # 512/8
+
+
+    # Top-left corner
+    top_left = extractor.extract_tile(img_array, 0, 0, tile_width, tile_height)
+    assert top_left['position'] == (0, 0, 64, 64)
