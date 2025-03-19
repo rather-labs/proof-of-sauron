@@ -1,6 +1,6 @@
 from PIL import Image
 from pathlib import Path
-from analyzer.tile_extractor import TileExtractor
+from analyzer.tiler import TileExtractor
 from email.mime import image
 
 
