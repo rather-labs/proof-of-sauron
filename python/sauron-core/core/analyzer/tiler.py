@@ -2,8 +2,6 @@ from PIL import Image
 import numpy as np
 import pandas as pd
 
-import math
-
 class TileExtractor:
     def __init__(self, tile_size=64):
         self.tile_size = tile_size
@@ -48,9 +46,9 @@ class TileExtractor:
             for col in range(n_cols):
                 tile = self.extract_tile(img_array, row, col, tile_width, tile_height)
                 tiles.append(tile)
+            
         
         if dataFrame:
             return pd.DataFrame(tiles)
         
         return tiles
-    

@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 import pandas as pd
 from PIL import Image
-from core.analyzer.tile_extractor import TileExtractor
+from core.analyzer.tiler import TileExtractor
 
 @pytest.fixture
 def extractor():
