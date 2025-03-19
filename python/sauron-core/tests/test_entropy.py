@@ -2,14 +2,30 @@ import pytest
 import numpy as np
 import pandas as pd
 from PIL import Image
+from pathlib import Path
 from core.features.entropy import EntropyAnalyzer
 
-def _load_test_image(image_path):
+TEST_DATA_DIR = Path(__file__).parent / "data"
+
+@pytest.fixture
+def real_image():
+
+    image_path = TEST_DATA_DIR / "real.jpeg"
+    if not image_path.exists():
+        raise FileNotFoundError(f"File not found: {image_path}")
     return Image.open(image_path)
 
 @pytest.fixture
-def test_image():
-    return _load_test_image("real.jpeg")
+def fake_image():
+
+    image_path = TEST_DATA_DIR / "fake.jpeg"
+    if not image_path.exists():
+        raise FileNotFoundError(f"File not found: {image_path}")
+    return Image.open(image_path)
+
+@pytest.fixture
+def uniform_image():
+    return Image.new('RGB', (64, 64), (255, 255, 255))
 
 @pytest.fixture
 def analizer():
@@ -22,3 +38,29 @@ def analizer():
 ])
 def test_normalized_sigmoid(x, center, steepness, expected, analizer):
     assert np.isclose(analizer.normalized_sigmoid(x, center, steepness), expected, atol=1e-5)
+
+def test_compute__entropy_uniform_image(analizer, uniform_image):
+    """ Test that the entropy is computed correctly in a uniform image"""
+
+    image_array = np.array(uniform_image)
+    entropy = analizer.compute_entropy(image_array)
+    assert entropy == 0
+
+def test_compute_entropy_real_image(analizer, real_image):
+    """ Test that the entropy is computed correctly in a real image"""
+
+    real_image = real_image.convert('L')
+    image_array = np.array(real_image)
+
+    entropy = analizer.compute_entropy(image_array)
+    assert 0.5 <= entropy <= 1
+
+def test_compute_entropy_fake_image(analizer, fake_image):
+    """ Test that the entropy is computed correctly in a real image"""
+
+    fake_image = fake_image.convert('L')
+    image_array = np.array(fake_image)
+
+    entropy = analizer.compute_entropy(image_array)
+    print(f"entropy: ", entropy)
+    assert 0.5 <= entropy <= 1

@@ -13,4 +13,26 @@ class EntropyAnalyzer:
         """
         return 1 / (1 + np.exp(-steepness * (x - center)))
     
+    def compute_texture_metrics(self, tile):
+        """Compute multiple texture metrics for a tile, (numpy array)"""
+
+        # Convert to grayscale, tile is an image array
+        gray_tile = np.array(tile.convert('L'))
+        metrics = dict()
+
+        metrics['entropy'] = self.compute_entropy(gray_tile)
+        print(metrics)
+
+        return metrics
     
+    def compute_entropy(self, tile):
+        """Compute the entropy of an image tile in grey"""
+        
+        # Entropy (information content)
+        hist = np.histogram(tile, bins=256, range=(0, 256))[0]
+        hist = hist / hist.sum() # Normalize
+
+        # Normalize by maximum possible entropy (log2(256) = 8)
+        entr = entropy(hist, base=2) / 8 # Normalize to [0,1]
+        
+        return entr
