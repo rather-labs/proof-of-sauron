@@ -23,10 +23,9 @@ class NoiseAnalyzer:
         # Noise variation
         noise_var = np.var(np.diff(tile.flatten()))
         
-        return {
-            'hf_energy': self._normalize(hf_energy, 1e5),
-            'noise_variance': self._normalize(noise_var, 1000)
-        }
+        return {'hf_energy': self._normalize(hf_energy, 1e5),
+            'noise_variance': self._normalize(noise_var, 1000)}
+        
     
     def _create_hf_mask(self, height: int, width: int) -> np.ndarray:
         """Create high frequency mask"""
@@ -34,3 +33,7 @@ class NoiseAnalyzer:
         dist_from_center = np.sqrt(x*x + y*y)
         mask = dist_from_center > min(height, width) // 4
         return mask
+    
+    def _normalize(self, value: float, scale: float) -> float:
+        """Normalize value to [0,1] range"""
+        return 1 / (1 + np.exp(-value/scale))
