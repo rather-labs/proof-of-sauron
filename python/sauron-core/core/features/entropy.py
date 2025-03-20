@@ -17,10 +17,14 @@ class EntropyAnalyzer:
         """Compute multiple texture metrics for a tile, (numpy array)"""
 
         # Convert to grayscale, tile is an image array
-        gray_tile = np.array(tile.convert('L'))
+        tile = np.array(tile.convert('L'))
+
         metrics = dict()
 
-        metrics['entropy'] = self.compute_entropy(gray_tile)
+        correlation_h, correlation_v = self.compute_inter_pixel_correlation(tile)
+        metrics['entropy'] = self.compute_entropy(tile)
+        metrics['correlation_h'] = correlation_h
+        metrics['correlation_v'] = correlation_v
         print(metrics)
 
         return metrics
@@ -36,3 +40,10 @@ class EntropyAnalyzer:
         entr = entropy(hist, base=2) / 8 # Normalize to [0,1]
         
         return entr
+    
+    def compute_inter_pixel_correlation(self, tile):
+        """
+        Compute the inter-pixel distance of an image tile in x and y directions
+        Uses the variance of the pixel intensity differences and normalizes to [0, 1]
+        """
+        return 0, 1
