@@ -41,15 +41,15 @@ def _compute_image_entropy(image, analyzer):
     (0.5, 0.5, 10, 0.5),
     (1, 0.5, 10, 1 / (1 + np.exp(-5)))
 ])
-def test_normalized_sigmoid(x, center, steepness, expected, analizer):
-    assert np.isclose(analizer.normalized_sigmoid(x, center, steepness), expected, atol=1e-5)
+def test_normalized_sigmoid(x, center, steepness, expected, analyzer):
+    assert np.isclose(analyzer.normalized_sigmoid(x, center, steepness), expected, atol=1e-5)
 
-def test_compute__entropy_uniform_image(analizer, uniform_image):
+def test_compute__entropy_uniform_image(analyzer, uniform_image):
     """ Test that the entropy is computed correctly in a uniform image"""
-    entropy = _compute_image_entropy(uniform_image, analizer)
+    entropy = _compute_image_entropy(uniform_image, analyzer)
     assert entropy == 0
 
-def test_compute_entropy_real_image(analizer, real_image):
+def test_compute_entropy_real_image(analyzer, real_image):
     """ Test that the entropy is computed correctly in a real image"""
-    entropy = _compute_image_entropy(real_image, analizer)
+    entropy = _compute_image_entropy(real_image, analyzer)
     assert 0.5 <= entropy <= 1

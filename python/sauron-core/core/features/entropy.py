@@ -25,7 +25,6 @@ class EntropyAnalyzer:
         metrics['entropy'] = self.compute_entropy(tile)
         metrics['correlation_h'] = correlation_h
         metrics['correlation_v'] = correlation_v
-        print(metrics)
 
         return metrics
     
