@@ -36,9 +36,7 @@ class EntropyAnalyzer:
         hist = hist / hist.sum() # Normalize
 
         # Normalize by maximum possible entropy (log2(256) = 8)
-        entr = entropy(hist, base=2) / 8 # Normalize to [0,1]
-        
-        return entr
+        return entropy(hist, base=2) / 8 # Normalize to [0,1]
     
     def compute_inter_pixel_correlation(self, tile):
         """
