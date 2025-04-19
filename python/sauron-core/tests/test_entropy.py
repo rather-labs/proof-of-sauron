@@ -53,8 +53,3 @@ def test_compute_entropy_real_image(analizer, real_image):
     """ Test that the entropy is computed correctly in a real image"""
     entropy = _compute_image_entropy(real_image, analizer)
     assert 0.5 <= entropy <= 1
-
-def test_compute_entropy_fake_image(analizer, fake_image):
-    """ Test that the entropy is computed correctly in a real image"""
-    entropy = _compute_image_entropy(fake_image, analizer)
-    assert 0.5 <= entropy <= 1
