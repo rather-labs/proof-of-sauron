@@ -2,7 +2,7 @@ import numpy as np
 from PIL import Image
 from typing import Dict
 from scipy.stats import entropy
-
+from scipy.ndimage import uniform_filter
 
 class EntropyAnalyzer:
     def normalized_sigmoid(self, x , center=0.5, steepness=10):
@@ -17,15 +17,18 @@ class EntropyAnalyzer:
         """Compute multiple texture metrics for a tile, (numpy array)"""
 
         # Convert to grayscale, tile is an image array
-        gray_tile = np.array(tile.convert('L'))
+        tile = np.array(tile.convert('L'))
+
         metrics = dict()
 
-        metrics['entropy'] = self.compute_entropy(gray_tile)
-        print(metrics)
+        correlation_h, correlation_v = self.compute_inter_pixel_correlation(tile)
+        metrics['entropy'] = self.compute_entropy(tile)
+        metrics['correlation_h'] = correlation_h
+        metrics['correlation_v'] = correlation_v
 
         return metrics
     
-    def compute_entropy(self, tile):
+    def compute_entropy(self, tile): 
         """Compute the entropy of an image tile in grey"""
         
         # Entropy (information content)
@@ -33,6 +36,29 @@ class EntropyAnalyzer:
         hist = hist / hist.sum() # Normalize
 
         # Normalize by maximum possible entropy (log2(256) = 8)
-        entr = entropy(hist, base=2) / 8 # Normalize to [0,1]
+        return entropy(hist, base=2) / 8 # Normalize to [0,1]
+    
+    def compute_local_entropy(self, tile, window_size=9): 
+        """Compute the average local entropy using sliding window"""
         
-        return entr
+        if isinstance(tile, Image.Image):
+            tile = np.array(tile.convert('L'))
+
+        local_entropy = np.zeros_like(tile, dtype=float)
+
+        half = window_size // 2
+        rows, cols = tile.shape
+
+        for i in range(half, rows - half):
+            for j in range(half, cols - half):
+
+                # Extract a subregion from the tile using slicing [start:end, start:end]
+                window = tile[
+                    i-half: i+half+1,
+                    j-half: j+half+1
+                ]
+
+                # Calculate the entropy of the current window and store it the position (i,j)
+                local_entropy[i,j] = self.compute_entropy(window)
+        
+        return np.mean(local_entropy)
