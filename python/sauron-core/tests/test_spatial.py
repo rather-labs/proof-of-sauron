@@ -1,6 +1,5 @@
-import pytest
-import numpy as np
 from core.features.spatial import SpatialAnalyzer
+from tests.fixtures import *
 
 @pytest.fixture
 def analyzer():
@@ -8,5 +7,3 @@ def analyzer():
 
 def test_spatial_metrics_computation(analyzer):
     """Test spatial metrics computation"""
-    # Create a SpatialAnalyzer instance
-    

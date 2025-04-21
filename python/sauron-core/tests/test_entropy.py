@@ -1,27 +1,5 @@
-import pytest
-import numpy as np
-import pandas as pd
-from PIL import Image
-from pathlib import Path
 from core.features.entropy import EntropyAnalyzer
-
-TEST_DATA_DIR = Path(__file__).parent / "data"
-
-@pytest.fixture
-def real_image():
-
-    image_path = TEST_DATA_DIR / "real.jpeg"
-    if not image_path.exists():
-        raise FileNotFoundError(f"File not found: {image_path}")
-    return Image.open(image_path)
-
-@pytest.fixture
-def fake_image():
-
-    image_path = TEST_DATA_DIR / "fake.jpeg"
-    if not image_path.exists():
-        raise FileNotFoundError(f"File not found: {image_path}")
-    return Image.open(image_path)
+from tests.fixtures import *
 
 @pytest.fixture
 def uniform_image():
