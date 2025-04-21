@@ -2,7 +2,7 @@ import numpy as np
 from PIL import Image
 from typing import Dict
 from scipy.stats import entropy
-
+from scipy.ndimage import uniform_filter
 
 class EntropyAnalyzer:
     def normalized_sigmoid(self, x , center=0.5, steepness=10):
@@ -28,7 +28,7 @@ class EntropyAnalyzer:
 
         return metrics
     
-    def compute_entropy(self, tile):
+    def compute_entropy(self, tile): 
         """Compute the entropy of an image tile in grey"""
         
         # Entropy (information content)
@@ -38,9 +38,27 @@ class EntropyAnalyzer:
         # Normalize by maximum possible entropy (log2(256) = 8)
         return entropy(hist, base=2) / 8 # Normalize to [0,1]
     
-    def compute_inter_pixel_correlation(self, tile):
-        """
-        Compute the inter-pixel distance of an image tile in x and y directions
-        Uses the variance of the pixel intensity differences and normalizes to [0, 1]
-        """
-        return 0, 1
+    def compute_local_entropy(self, tile, window_size=9): 
+        """Compute the average local entropy using sliding window"""
+        
+        if isinstance(tile, Image.Image):
+            tile = np.array(tile.convert('L'))
+
+        local_entropy = np.zeros_like(tile, dtype=float)
+
+        half = window_size // 2
+        rows, cols = tile.shape
+
+        for i in range(half, rows - half):
+            for j in range(half, cols - half):
+
+                # Extract a subregion from the tile using slicing [start:end, start:end]
+                window = tile[
+                    i-half: i+half+1,
+                    j-half: j+half+1
+                ]
+
+                # Calculate the entropy of the current window and store it the position (i,j)
+                local_entropy[i,j] = self.compute_entropy(window)
+        
+        return np.mean(local_entropy)

@@ -28,7 +28,7 @@ def uniform_image():
     return Image.new('RGB', (64, 64), (255, 255, 255))
 
 @pytest.fixture
-def analizer():
+def analyzer():
     return EntropyAnalyzer()
 
 def _compute_image_entropy(image, analyzer):
@@ -53,3 +53,12 @@ def test_compute_entropy_real_image(analyzer, real_image):
     """ Test that the entropy is computed correctly in a real image"""
     entropy = _compute_image_entropy(real_image, analyzer)
     assert 0.5 <= entropy <= 1
+
+def test_compute_local_entropy_uniform(analyzer, uniform_image):
+    """Test local entropy on a uniform image (should be 0)"""
+
+    window_size = 5
+   
+    mean_local_entropy = analyzer.compute_local_entropy(uniform_image, window_size=window_size)
+    # For a uniform image, the entropy of every window should be 0
+    assert np.isclose(mean_local_entropy, 0.0)
