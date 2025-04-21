@@ -73,8 +73,5 @@ def test_compute_noise_metrics(analyzer, request, image_fixture, expected_noise)
 
         # Check if the metric is present in the dictionary
         # and if its value is within the expected range
-        assert current is not None, f"{metric} not found in metrics"
-
-        print(f"Testing {image_fixture}: Metric={metric}, Value={current:.4f}, Expected Range=({min_val}, {max_val})") # Added print for debugging
-        assert min_val <= current <= max_val, \
-            f"{metric} for {image_fixture} outside expected range"
+        assert current is not None
+        assert min_val <= current <= max_val
