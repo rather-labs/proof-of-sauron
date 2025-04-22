@@ -36,6 +36,11 @@ class SpatialAnalyzer:
             metrics['texture_uniformity_h'] = np.std(hist_h)
             metrics['texture_uniformity_v'] = np.std(hist_v)
 
+            # Inter-pixel correlation
+            metrics['correlation_h'] = self._compute_autocorrelation(gradient_h)
+            metrics['correlation_v'] = self._compute_autocorrelation(gradient_v)
+
+
 
         except Exception as e:
             raise Exception(f"Error in spatial metrics: {str(e)}")
