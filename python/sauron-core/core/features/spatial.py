@@ -2,6 +2,8 @@ import numpy as np
 from PIL import Image
 from typing import Dict, List, Tuple, Optional
 from scipy.ndimage import minimum_filter, maximum_filter
+from scipy.stats import wasserstein_distance, entropy
+
 
 
 class SpatialAnalyzer:
@@ -54,6 +56,33 @@ class SpatialAnalyzer:
         
         return metrics
     
+    def compute_inter_tile_divergence(self, tiles):
+        """Compute statistical divergence between tiles"""
+        metrics = {}
+        n_tiles = len(tiles)
+
+        # Convert tiles to grayscale
+        gray_tiles = [np.mean(t, axis=2) if len(t.shape) == 3 else t for t in tiles]
+
+        # Compute pairwise divergences
+        divergences = []
+        for i in range(n_tiles):
+            for j in range(i + 1, n_tiles):
+                # Gradient histograms
+                hist_i, _ = np.histogram(gray_tiles[i], bins=50, density=True)
+                hist_j, _ = np.histogram(gray_tiles[j], bins=50, density=True)
+
+                # Wasserstein distance between histograms
+                div = wasserstein_distance(hist_i, hist_j)
+                divergences.append(div)
+
+        # Statistical measures of divergence
+        metrics['texture_divergence_mean'] = np.mean(divergences)
+        metrics['texture_divergence_std'] = np.std(divergences)
+
+        return metrics
+
+
     def _compute_autocorrelation(self, signal):
         """
         Compute the normalized auto-correlation of a given flattened signal
@@ -100,7 +129,7 @@ class SpatialAnalyzer:
         https://en.wikipedia.org/w/index.php?title=Contrast_(vision)#Michelson_contrast
         """
       
-        image_float = image.astype(np.float32)
+        image_float = tile.astype(np.float32)
         local_min = minimum_filter(image_float, size=window_size, mode='reflect')
         local_max = maximum_filter(image_float, size=window_size, mode='reflect')
 

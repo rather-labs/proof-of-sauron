@@ -46,4 +46,35 @@ def test_spatial_metrics_gradient(analyzer, gradient_image):
     assert abs(metrics['correlation_h']) > 0.0
     
     # There should be some contrast variation in a gradient
-    assert metrics['contrast_variance'] == 0.0
+    assert metrics['contrast_variance'] > 0.07
+
+def test_autocorrelation(analyzer):
+    """Test autocorrelation computation"""
+    # Create test signal with known correlation
+    x = np.linspace(0, 4*np.pi, 100)
+    signal = np.sin(x)  # Periodic signal
+
+    corr = analyzer._compute_autocorrelation(signal)
+    assert isinstance(corr, float)
+    assert -1 <= corr <= 1  # Correlation should be bounded
+
+    # Test with random noise (should have low correlation)
+    np.random.seed(42)  # Set seed for reproducibility
+    noise = np.random.randn(100)
+    noise_corr = analyzer._compute_autocorrelation(noise)
+    # Check that noise correlation is significantly lower
+    assert abs(noise_corr) < 0.1  # Noise should have very low correlation
+
+def test_compute_local_contrast(analyzer, uniform_image):
+    """Test local contrast computation"""
+    window_size = 8
+    contrast = analyzer._compute_local_contrast(uniform_image, window_size)
+
+    assert isinstance(contrast, np.ndarray)
+    assert contrast.shape == uniform_image.shape
+    assert np.all((contrast >= 0) & (contrast <= 1))  # Contrast should be normalized
+
+    # Test with uniform region (should have zero contrast)
+    uniform_tile = np.ones_like(uniform_image)
+    uniform_contrast = analyzer._compute_local_contrast(uniform_tile, window_size)
+    assert np.mean(uniform_contrast) < 0.01
