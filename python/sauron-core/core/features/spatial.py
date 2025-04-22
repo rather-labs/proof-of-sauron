@@ -1,4 +1,5 @@
 import numpy as np
+from PIL import Image
 from typing import Dict, List, Tuple, Optional
 
 class SpatialAnalyzer:
@@ -14,8 +15,15 @@ class SpatialAnalyzer:
         }
        
         try: 
-            # Convert to grayscale
-            gray_tile = np.array(tile.convert('L'))
+            
+            if isinstance(tile, Image.Image):
+                # Convert to grayscale
+                gray_tile = np.array(tile.convert('L'))
+            elif isinstance(tile, np.ndarray):
+                gray_tile = tile
+            else:
+                raise ValueError("Input 'tile' must be a PIL Image or a 2D NumPy array.")
+
 
             # Local texture uniformity patterns
             gradient_h = np.diff(gray_tile, axis=1)
@@ -32,6 +40,4 @@ class SpatialAnalyzer:
         except Exception as e:
             raise Exception(f"Error in spatial metrics: {str(e)}")
         
-
-
         return metrics

@@ -6,7 +6,7 @@ class NoiseAnalyzer:
     def __init__(self):
         self.fft_cache = {}
     
-    def compute_noise_metrics(self, tile: np.ndarray) -> Dict[str, float]:
+    def compute_noise_metrics(self, tile) -> Dict[str, float]:
         """Compute various noise-related metrics"""
         # Convert to grayscale if needed
         if len(tile.shape) > 2:
@@ -27,7 +27,7 @@ class NoiseAnalyzer:
             'noise_variance': self._normalize(noise_var, 1000)}
         
     
-    def _create_hf_mask(self, height: int, width: int) -> np.ndarray:
+    def _create_hf_mask(self, height, width) -> np.ndarray:
         """Create high frequency mask"""
         y, x = np.ogrid[-height//2:height//2, -width//2:width//2]
         dist_from_center = np.sqrt(x*x + y*y)
