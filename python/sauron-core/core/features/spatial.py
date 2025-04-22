@@ -1,6 +1,8 @@
 import numpy as np
 from PIL import Image
 from typing import Dict, List, Tuple, Optional
+from scipy.ndimage import minimum_filter, maximum_filter
+
 
 class SpatialAnalyzer:
     def compute_spatial_metrics(self, tile):
@@ -11,11 +13,13 @@ class SpatialAnalyzer:
         
         metrics = {
             'texture_uniformity_h': 0.0,
-            'texture_uniformity_v': 0.0
+            'texture_uniformity_v': 0.0,
+            'correlation_h': 0.0,
+            'correlation_v': 0.0,
+            'contrast_variance': 0.0
         }
-       
-        try: 
-            
+        
+        try:     
             if isinstance(tile, Image.Image):
                 # Convert to grayscale
                 gray_tile = np.array(tile.convert('L'))
@@ -40,10 +44,13 @@ class SpatialAnalyzer:
             metrics['correlation_h'] = self._compute_autocorrelation(gradient_h)
             metrics['correlation_v'] = self._compute_autocorrelation(gradient_v)
 
-
+            # Local contrast variations
+            window_size = 9
+            local_contrast = self._compute_local_contrast(gray_tile, window_size)
+            metrics['contrast_variance'] = float(np.var(local_contrast))
 
         except Exception as e:
-            raise Exception(f"Error in spatial metrics: {str(e)}")
+            print(f"Error in spatial metrics: {str(e)}")
         
         return metrics
     
@@ -83,3 +90,30 @@ class SpatialAnalyzer:
         except Exception as e:
             print(f"Error in autocorrelation: {str(e)}")
             return 0.0
+
+    def _compute_local_contrast(self, tile, window_size=9):
+        """
+        Compute the average local contrast using sliding window
+        The contrast is calculated for each window,
+        and the mean of these contrast values (normalized to [0, 1])
+        
+        https://en.wikipedia.org/w/index.php?title=Contrast_(vision)#Michelson_contrast
+        """
+      
+        image_float = image.astype(np.float32)
+        local_min = minimum_filter(image_float, size=window_size, mode='reflect')
+        local_max = maximum_filter(image_float, size=window_size, mode='reflect')
+
+        # epsilon is added to avoid division by zero
+        epsilon = 1e-6
+
+        # Michelson Contrast is defined as: 
+        # c = ( max - min ) / ( max - min + epsilon )
+        numerator = local_max - local_min
+        denominator = local_max + local_min + epsilon
+        contrast = numerator / denominator
+
+        # Normalize contrast to [0, 1]
+        local_contrast = np.clip(contrast, 0, 1)
+        
+        return local_contrast
