@@ -39,7 +39,11 @@ class EntropyAnalyzer:
         return entropy(hist, base=2) / 8 # Normalize to [0,1]
     
     def compute_local_entropy(self, tile, window_size=9): 
-        """Compute the average local entropy using sliding window"""
+        """
+        Compute the average local Shannon entropy using sliding window
+        The entropy is calculated for each window, 
+        and the mean of these entropy values (normalized to [0, 1])
+        """
         
         if isinstance(tile, Image.Image):
             tile = np.array(tile.convert('L'))

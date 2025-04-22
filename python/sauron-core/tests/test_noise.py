@@ -1,28 +1,11 @@
 import pytest
 import numpy as np
-from PIL import Image
 from core.features.noise import NoiseAnalyzer
+from tests.fixtures import uniform_image, random_image, gradient_image
 
 @pytest.fixture
 def analyzer():
     return NoiseAnalyzer()
-
-@pytest.fixture
-def uniform_image():
-    """Create uniform test image"""
-    return np.full((64, 64), 128, dtype=np.uint8)
-
-@pytest.fixture
-def random_image():
-    """Create random noise image"""
-    np.random.seed(42)
-    return np.random.randint(0, 256, (64, 64), dtype=np.uint8)
-
-@pytest.fixture
-def gradient_image():
-    """Create gradient image"""
-    x = np.linspace(0, 255, 64, dtype=np.uint8)
-    return np.tile(x, (64, 1))
 
 def test_normalize(analyzer):
     """Test _normalize function"""
