@@ -17,7 +17,7 @@ def square_image():
 @pytest.fixture
 def square_tile():
     """Create gray tile"""
-    return Image.new('RGB', (64, 64), (128))
+    return Image.new('RGB', (64, 64), (128, 128, 128))
 
 @pytest.fixture
 def rectangle_image():

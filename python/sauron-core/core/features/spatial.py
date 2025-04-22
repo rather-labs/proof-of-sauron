@@ -1,3 +1,4 @@
+import logging
 import numpy as np
 from PIL import Image
 from typing import Dict, List, Tuple, Optional
@@ -5,6 +6,8 @@ from scipy.ndimage import minimum_filter, maximum_filter
 from scipy.stats import wasserstein_distance, entropy
 
 
+# logger at module level
+logger = logging.getLogger(__name__)
 
 class SpatialAnalyzer:
     def compute_spatial_metrics(self, tile):
@@ -117,7 +120,7 @@ class SpatialAnalyzer:
             return average_normalized_correlation
 
         except Exception as e:
-            print(f"Error in autocorrelation: {str(e)}")
+            logger.error(f"Error in autocorrelation: {str(e)}")
             return 0.0
 
     def _compute_local_contrast(self, tile, window_size=9):
