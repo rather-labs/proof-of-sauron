@@ -24,7 +24,6 @@ class SpatialAnalyzer:
             else:
                 raise ValueError("Input 'tile' must be a PIL Image or a 2D NumPy array.")
 
-
             # Local texture uniformity patterns
             gradient_h = np.diff(gray_tile, axis=1)
             gradient_v = np.diff(gray_tile, axis=0)
@@ -37,7 +36,45 @@ class SpatialAnalyzer:
             metrics['texture_uniformity_h'] = np.std(hist_h)
             metrics['texture_uniformity_v'] = np.std(hist_v)
 
+
         except Exception as e:
             raise Exception(f"Error in spatial metrics: {str(e)}")
         
         return metrics
+    
+    def _compute_autocorrelation(self, signal):
+        """
+        Compute the normalized auto-correlation of a given flattened signal
+        Calculates the average of normalized correlations for lags k=1 to n-1.
+        
+        https://numpy.org/doc/2.2/reference/generated/numpy.correlate.html
+        """
+        try:
+            signal_flatten = signal.flatten()
+            n = len(signal_flatten)
+            
+            if n <= 1:
+                return 0.0
+            
+            # Center the signal
+            # y[n] = x[n] - mean(x)
+            y = signal_flatten - np.mean(signal_flatten)
+
+            # Compute correlation for non negative lags
+            # r[k] = sum(y[n] * y[n+k]) for k=0 to n-1
+            r = np.correlate(y, y, mode='full')[n-1:]
+
+            if r[0] == 0:
+                return 0.0
+
+            # Average of normalized correlations for signal lags k=1 to n-1
+            # r[0] is the sum of squares of y (proportional to variance)
+            # Sum r[1:] / r[0] and divide by the number of terms (n - 1)
+            # Ensure n-1 is not zero, already handled by the n <= 1 check
+            average_normalized_correlation = float(np.sum(r[1:] / r[0]) / (n - 1))
+            
+            return average_normalized_correlation
+
+        except Exception as e:
+            print(f"Error in autocorrelation: {str(e)}")
+            return 0.0
