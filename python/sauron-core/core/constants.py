@@ -8,7 +8,7 @@ ANGLE_135_DEG = 3 * math.pi / 4
 
 # Common orientation lists
 ORIENTATIONS_DEFAULT = [ANGLE_0_DEG, ANGLE_45_DEG, ANGLE_90_DEG, ANGLE_135_DEG]
-ORIENTATIONS_FINE = [i * math.pi / 8 for i in range(8)]  # 8 orientations (0°, 22.5°, 45°, etc.)
+ORIENTATIONS_FINE = [i * math.pi / 8 for i in range(8)]  # 8 orientations (0°, 22.5°, 45°, ... 157.5°)
 
 # Default parameters
 DEFAULT_HISTOGRAM_BINS = 50
