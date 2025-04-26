@@ -2,23 +2,13 @@ import pytest
 import numpy as np
 import pandas as pd
 from PIL import Image
+
 from core.analyzer.tiler import TileExtractor
+from tests.fixtures import square_image, rectangle_image, tile_array
 
 @pytest.fixture
 def extractor():
     return TileExtractor(tile_size=64)
-
-@pytest.fixture
-def square_image():
-    return Image.new('RGB', (256, 256))
-
-@pytest.fixture
-def rectangle_image():
-    return Image.new('RGB', (256, 512))
-
-@pytest.fixture
-def tile_array(request, rectangle_image):
-    return np.array(rectangle_image)
 
 def test_initialization(extractor):
     """Test that the TileExtractor initializes with correct parameters"""

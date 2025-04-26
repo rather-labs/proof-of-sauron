@@ -17,6 +17,7 @@ __pycache__/
 /python/**/ENV/
 /python/**/.env/
 /python/**/.venv/
+/python/**/dist/
 
 # Node.js ignores
 node_modules/
