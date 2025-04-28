@@ -62,7 +62,7 @@ class TextureAnalyzer:
                 hist = compute_histogram(region.flatten(), self.epsilon)
                 region_hists.append(hist)
                 region_stats.append({
-                    'entropy': self.entropy_analyzer.compute_entropy(hist),
+                    'entropy': self.entropy_analyzer.compute_entropy(region),
                     'mean': np.mean(region),
                     'std': np.std(region)
                 })
@@ -81,7 +81,7 @@ class TextureAnalyzer:
             divergences = []
             for i in range(len(region_hists)):
                 for j in range(i + 1, len(region_hists)):
-                    div_kl = self.entropy_analyzer.compute_entropy(region_hists[i], region_hists[j])
+                    div_kl = entropy(region_hists[i], region_hists[j])
                     div_js = jensenshannon(region_hists[i], region_hists[j])
                     div_w = wasserstein_distance(region_hists[i], region_hists[j])
                     if not np.isnan(div_kl):
@@ -103,7 +103,61 @@ class TextureAnalyzer:
         return None
 
     def compute_texture_divergence(self, tiles):
-        pass
+        """Compute texture divergence metrics between a set of tiles"""
+        metrics = {}
+        
+        # Need at least 2 tiles to compute divergence
+        if len(tiles) < 2:
+            return metrics
+        
+        try:
+            # Preprocess tiles
+            processed_tiles = []
+            for tile in tiles:
+                processed = self._preprocess_image(tile)
+                if processed is not None:
+                    processed_tiles.append(processed)
+            
+            # Need at least 2 valid processed tiles
+            if len(processed_tiles) < 2:
+                return metrics
+                
+            # Compute histograms for each tile
+            histograms = [compute_histogram(tile.flatten(), self.epsilon) for tile in processed_tiles]
+            
+            # Calculate pairwise divergences between histograms
+            div_values = {
+                'kl_div': [],
+                'js_div': [],
+                'wasserstein_dist': []
+            }
+            
+            for i in range(len(histograms)):
+                for j in range(i+1, len(histograms)):
+                    # Use scipy's entropy for KL divergence
+                    kl = entropy(histograms[i], histograms[j])
+                    js = jensenshannon(histograms[i], histograms[j])
+                    wd = wasserstein_distance(histograms[i], histograms[j])
+                    
+                    if not np.isnan(kl) and not np.isinf(kl):
+                        div_values['kl_div'].append(kl)
+                    if not np.isnan(js) and not np.isinf(js):
+                        div_values['js_div'].append(js)
+                    if not np.isnan(wd) and not np.isinf(wd):
+                        div_values['wasserstein_dist'].append(wd)
+            
+            # Calculate aggregate statistics
+            for key, values in div_values.items():
+                if values:
+                    metrics[f"{key}_mean"] = float(np.mean(values))
+                    metrics[f"{key}_std"] = float(np.std(values))
+                    metrics[f"{key}_max"] = float(np.max(values))
+        
+            return metrics
+        
+        except Exception as e:
+            logger.error(f"Error in texture divergence: {e}")
+        return {}  # Return empty dict on error, not None
 
     def _preprocess_image(self,tile):
         """Convert image to normalized grayscale (0-1 range)."""
@@ -114,7 +168,7 @@ class TextureAnalyzer:
                 return None
                 
             # Normalize using percentiles
-            self._normalize_percentiles(gray_tile)
+            gray_tile = self._normalize_percentiles(gray_tile)
             return gray_tile
                 
         except Exception as e:
@@ -127,7 +181,7 @@ class TextureAnalyzer:
         norm_factor = max(p99 - p1, self.epsilon)
 
         # Avoid division by zero 
-        return np.clip((tile_list - p1) / norm_factor, 0, 1)
+        return np.float32(np.clip((tile_list - p1) / norm_factor, 0, 1))
 
     def _convert_to_grayscale(self, tile):
         """Convert input to grayscale float32 array."""
