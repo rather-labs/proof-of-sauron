@@ -15,7 +15,12 @@ dependencies = [
     "scipy (>=1.15.2,<2.0.0)",
     "scikit-image (>=0.25.2,<0.26.0)",
     "fft (>=0.1,<0.2)",
+<<<<<<< HEAD
+    "cachepy (>=1.2,<2.0)",
+    "joblib (>=1.4.2,<2.0.0)"
+=======
     "pywavelets (>=1.8.0,<2.0.0)"
+>>>>>>> development
 ]
 
 

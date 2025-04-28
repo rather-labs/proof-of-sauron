@@ -11,6 +11,12 @@ __pycache__/
 *$py.class
 *.so
 .Python
+*.poetry.lock
+*.cache
+*.pytest_cache
+*.coverage
+cache
+*.lock
 
 # Virtual environments
 /python/**/venv/
@@ -18,6 +24,10 @@ __pycache__/
 /python/**/.env/
 /python/**/.venv/
 /python/**/dist/
+/python/**/.poetry.lock/
+
+# Cache python files
+/cache/**/
 
 # Node.js ignores
 node_modules/
@@ -32,6 +42,7 @@ npm-debug.log*
 *.sqlite
 *.zip
 *.tar.gz
+
 
 # Log files
 *.log
