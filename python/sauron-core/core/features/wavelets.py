@@ -22,7 +22,9 @@ class WaveletAnalyzer:
                 return {}
 
             # Compute wavelet decomposition
-            coeffs = pywt.wavedec2(tile, self.wavelet, level=self.level)
+            max_possible_level = self._get_max_possible_level(tile.shape)
+            effective_level = min(self.level, max_possible_level)
+            coeffs = pywt.wavedec2(tile, self.wavelet, level=effective_level)
 
             metrics = {}
 
@@ -47,7 +49,7 @@ class WaveletAnalyzer:
                 
                 metrics[f'wavelet_l{i}'] = self._normalize(enhanced_energy)
                 level_energies.append(enhanced_energy)
-            
+
             # Overall wavelet energy (weighted by level importance)
             if level_energies:
                 # Higher weight for higher frequency components (more important for AI detection)
@@ -63,6 +65,10 @@ class WaveletAnalyzer:
             print(f"Error computing wavelet metrics: {str(e)}")
             return {}
         
-        def _normalize(self, value: float) -> float:
-            """Normalize value to [0,1] range"""
-            return 1 / (1 + np.exp(-value * 10))
+    def _normalize(self, value: float) -> float:
+        """Normalize value to [0,1] range"""
+        return 1 / (1 + np.exp(-value * 10))
+    
+    def _get_max_possible_level(self, image_shape) -> int:
+        """Calculate the maximum possible decomposition level for an image."""
+        return pywt.dwt_max_level(min(image_shape), self.wavelet)

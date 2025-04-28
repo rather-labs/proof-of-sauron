@@ -4,9 +4,9 @@ import numpy as np
 from core.features.wavelets import WaveletAnalyzer
 
 
-@pytest.fixture
-def wavelet_analyzer():
-    return WaveletAnalyzer(wavelet='db1', level=3)
+@pytest.fixture(params=("l", 3))
+def wavelet_analyzer(l=3):
+    return WaveletAnalyzer(wavelet='db1', level=l)
 
 #testing fixture, to be removed later
 @pytest.fixture
@@ -66,18 +66,24 @@ def test_directional_sensitivity(wavelet_analyzer, synthetic_image):
         # Should show higher energy in diagonal coefficients
         assert metrics['wavelet_l1'] > 0.7
 
-def test_level_decomposition():
-    """Test correct handling of decomposition levels"""
-    # Test automatic level reduction for small images
-    small_img = np.random.rand(8, 8)
-    analyzer = WaveletAnalyzer(level=5)  # Request more levels than possible
-    coeffs = pywt.wavedec2(small_img, analyzer.wavelet, level=analyzer.level)
-    expected_levels = pywt.dwt_max_level(small_img.shape, analyzer.wavelet)
-    assert len(coeffs) == expected_levels + 1
+@pytest.mark.parametrize("requested_level", [5, 10]) # Levels higher than possible for 8x8
+def test_multilevel_decomposition(sample_tile, requested_level):
+    """
+    Test that WaveletAnalyzer correctly handles levels exceeding the image maximum.
+    It should compute metrics only up to the maximum possible level.
+    """
+    wavelet = 'db1' # Use a specific wavelet for consistency
+    analyzer = WaveletAnalyzer(wavelet=wavelet, level=requested_level)
 
+    expected_levels = min(requested_level, analyzer._get_max_possible_level(sample_tile.shape))
 
-def test_wavelet_metrics_values(wavelet_analyzer: WaveletAnalyzer, sample_tile: np.ndarray):
-    """Test wavelet metrics values"""
-    pass
+    # Compute metrics using the analyzer
+    metrics = analyzer.compute_wavelet_metrics(sample_tile)
 
+    # Verify the number of computed level-specific metrics
+    level_metric_keys = [keys for keys in metrics if keys.startswith('wavelet_l')]
 
+    assert len(level_metric_keys) == expected_levels
+    assert f'wavelet_l{expected_levels}' in metrics
+    assert f'wavelet_l{expected_levels + 1}' not in metrics
+    assert 'wavelet_total' in metrics
