@@ -1,15 +1,15 @@
 import pytest
 import numpy as np
 from core.features.texture import TextureAnalyzer, compute_histogram
-from tests.fixtures import uniform_image
+from tests.fixtures import square_image
 
 @pytest.fixture
 def analyzer():
     return TextureAnalyzer()
 
-def test_compute_texture_divergence(analyzer, uniform_image):
+def test_compute_texture_divergence(analyzer, square_image):
      # Create a list of tiles for testing
-    tiles = [uniform_image, uniform_image.copy()]  # Two identical images
+    tiles = [square_image, square_image.copy()]  # Two identical images
     metrics = analyzer.compute_texture_divergence(tiles)
     
     # Assert that it returns a dictionary (basic test)
@@ -25,11 +25,19 @@ def test_compute_histogram(analyzer):
     assert np.isclose(np.sum(hist), 1.0)  # Checks normalization
     assert not np.any(np.isnan(hist))  # Checks for NaN values
 
-def test_texture_features_computation(analyzer, uniform_image):
+def test_texture_features_computation(analyzer, square_image):
     """Test texture features computation"""
 
-    metrics = analyzer.compute_texture_features(uniform_image)
-    assert metrics is None
+    metrics = analyzer.compute_texture_features(square_image)
+    
+    assert isinstance(metrics, dict)
+        
+    # Uniform image should have low entropy
+    assert metrics['global_entropy'] < 0.3
+    
+    # Should have low variation between regions
+    assert metrics['region_entropy_var'] < 0.01
+    assert metrics['region_divergence_mean'] < 0.01
 
 def test_preprocess_image(analyzer):
     """Test image preprocessing"""

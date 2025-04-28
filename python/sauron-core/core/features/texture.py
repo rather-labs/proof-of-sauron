@@ -134,7 +134,6 @@ class TextureAnalyzer:
             
             for i in range(len(histograms)):
                 for j in range(i+1, len(histograms)):
-                    # Use scipy's entropy for KL divergence
                     kl = entropy(histograms[i], histograms[j])
                     js = jensenshannon(histograms[i], histograms[j])
                     wd = wasserstein_distance(histograms[i], histograms[j])
@@ -158,6 +157,40 @@ class TextureAnalyzer:
         except Exception as e:
             logger.error(f"Error in texture divergence: {e}")
         return {}  # Return empty dict on error, not None
+
+    def _compute_gradient_features(self, image):
+        """Calculate image gradient features for texture analysis."""
+        metrics = {}
+        
+        try:
+            # Compute X and Y gradients using simple differencing
+            grad_x = np.diff(image, axis=1)
+            grad_y = np.diff(image, axis=0)
+            
+            # Compute gradient magnitude (append zeros to match original shape)
+            mag_x = np.append(grad_x, np.zeros((image.shape[0], 1), dtype=np.float32), axis=1)
+            mag_y = np.append(grad_y, np.zeros((1, image.shape[1]), dtype=np.float32), axis=0)
+            
+            # Gradient magnitude 
+            grad_magnitude = np.sqrt(mag_x**2 + mag_y**2)
+            
+            # Extract metrics
+            metrics['gradient_mean'] = float(np.mean(grad_magnitude))
+            metrics['gradient_std'] = float(np.std(grad_magnitude))
+            metrics['gradient_energy'] = float(np.sum(grad_magnitude**2) / grad_magnitude.size)
+            
+            # Gradient direction histogram (8 bins)
+            dirs = np.arctan2(mag_y, mag_x)
+            hist, _ = np.histogram(dirs, bins=8, range=(-np.pi, np.pi))
+            hist = hist / np.sum(hist)
+            
+            # Gradient direction entropy (normalized)
+            metrics['gradient_direction_entropy'] = float(entropy(hist + 1e-10) / np.log(8))
+            
+        except Exception as e:
+            logger.warning(f"Error computing gradient features: {e}")
+        
+        return metrics
 
     def _preprocess_image(self,tile):
         """Convert image to normalized grayscale (0-1 range)."""
