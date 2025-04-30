@@ -11,7 +11,7 @@ import logging
 from scipy.stats import entropy, wasserstein_distance
 from scipy.spatial.distance import jensenshannon
 
-from core.constants import ORIENTATIONS_DEFAULT, DEFAULT_EPSILON
+from core.utils.constants import ORIENTATIONS_DEFAULT, DEFAULT_EPSILON
 
 logger = logging.getLogger(__name__)
 
