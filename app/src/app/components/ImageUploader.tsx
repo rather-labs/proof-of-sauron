@@ -1,110 +1,69 @@
 "use client";
 
-import Image from "next/image";
-import { useState, useCallback } from "react";
-import { Upload, Image as ImageIcon } from "lucide-react";
-import { useDropzone } from "react-dropzone";
-import { motion } from "framer-motion";
-import { fileURLToPath } from "url";
+import React, { useCallback } from 'react';
+import { useDropzone } from 'react-dropzone';
+import { Upload, Image as ImageIcon } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface ImageUploaderProps {
-    onImageUpload: (file: File) => void;
+  onImageUpload?: (file: File) => void;
 }
-export default function ImageUploader({ onImageUpload }: ImageUploaderProps) {
-    const [uploadedFile, setUploadedFile] = useState<File | null >(null);
-    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-    const [isUploading, setIsUploading] = useState<boolean>(false);
-    const [uploading, setUploading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
 
-    const onDrop = useCallback((acceptedFiles: File[]) => {
-        const file = acceptedFiles[0];
-        if (file) {
-            const url = URL.createObjectURL(file);
-            console.log(acceptedFiles);
-            setUploadedFile(file);
-            setPreviewUrl(url);
-            console.log(file);
-            console.log(url);
-        }
-    }, []);
-
-    const uploadFile = async (file: File) => {
-
-        setUploading(true);
-        setError(null);
-
-        const formData = new FormData();
-        formData.append("file", file);
-        
-        try {
-            const response = await fetch("/api/upload", {
-                method: "POST",
-                body: formData,
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to upload image");
-            }
-        } catch(err) {
-            setUploading
-            console.error(err);
-        } finally {
-            setUploading(false);
-        }
+const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUpload }) => {
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    if (acceptedFiles.length > 0) {
+      if (onImageUpload) {
+        onImageUpload(acceptedFiles[0]);
+      }
     }
+  }, [onImageUpload]);
 
-    const { getRootProps, getInputProps, isDragActive } = useDropzone({
-        onDrop,
-        accept: { 
-            "image/*": [".png", ".jpg", ".jpeg", ".gif", ".webp"] 
-        },
-        maxFiles: 1,
-        multiple: false,
-    });
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp']
+    },
+    maxFiles: 1
+  });
 
-    return (
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="w-full max-w-xl mx-auto"
+    >
+      <div
+        {...getRootProps()}
+        className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-all duration-300 ${
+          isDragActive 
+            ? 'border-white bg-white/10' 
+            : 'border-gray-600 hover:border-white/70 hover:bg-white/5'
+        }`}
+      >
+        <input {...getInputProps()} />
         <motion.div
-            className="flex flex-col justify-center items-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            whileHover={{ scale: 1.05 }} >
-
-            <div className={`
-                border-2 border-dashed border-gray-300 rounded-xl max-w-xl text-center 
-                cursor-pointer transition-all duration-300 hover:border-gray-600/50 break-all p-12 
-                ${ isDragActive
-                    ? "border-white bg-white/10" 
-                    : "border-gray-600 hover:border-white/5" }
-                `} 
-                {...getRootProps()}>
-
-                <input {...getInputProps()} />
-                <motion.div 
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="flex flex-col items-center justify-center gap-4">
-        
-                    { previewUrl 
-                        ? ( <Image src={previewUrl} alt="Uploaded Image" width={200} height={200} /> )
-                        : isDragActive 
-                            ? ( <ImageIcon className="w-16 h-16 text-white" /> ) 
-                            : ( <Upload className="w-16 h-16 text-white" /> )
-                    }
-                    <div className="text-white">
-                        <p className="text-xl font-medium mt-4">
-                            {isDragActive
-                                ? "Drop the image here"
-                                : "Upload an image"
-                            }
-                        </p>
-                        <p className="text-gray-400 text-sm mt-2">
-                            Drag and drop an image, or click to select a file 
-                        </p>
-                    </div>
-                </motion.div>
-            </div>
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="flex flex-col items-center justify-center gap-4"
+        >
+          {isDragActive ? (
+            <ImageIcon className="w-16 h-16 text-white" />
+          ) : (
+            <Upload className="w-16 h-16 text-white" />
+          )}
+          <div className="text-white">
+            <p className="text-xl font-medium mb-2">
+              {isDragActive ? 'Drop the image here' : 'Upload an image'}
+            </p>
+            <p className="text-gray-400 text-sm">
+              Drag and drop an image, or click to select
+            </p>
+          </div>
         </motion.div>
-    );
-}
+      </div>
+    </motion.div>
+  );
+};
+
+export default ImageUploader;
