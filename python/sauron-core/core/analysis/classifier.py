@@ -4,6 +4,8 @@ from sklearn.preprocessing import StandardScaler
 from typing import Dict
 
 class AIImageClassifier:
+    """Classifier for detecting AI-generated images using SVM"""
+
     def __init__(self):
         self.classifier = SVC(probability=True)
         self.scaler = StandardScaler()
