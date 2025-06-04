@@ -33,6 +33,9 @@ cache
 node_modules/
 /frontend/.next/
 /frontend/out/
+/app/node_modules/
+/app/.next/
+/app/out/
 npm-debug.log*
 
 # Common data/binary files
