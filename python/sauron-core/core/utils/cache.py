@@ -42,3 +42,34 @@ class Cache:
             return result
             
         return wrapper
+    
+    def clear_cache(self, prefix=None):
+        """Clear all or specific cache files"""
+        if not os.path.exists(self.cache_dir):
+            return
+            
+        count = 0
+        for filename in os.listdir(self.cache_dir):
+            if prefix is None or filename.startswith(prefix):
+                try:
+                    os.remove(os.path.join(self.cache_dir, filename))
+                    count += 1
+                except Exception:
+                    pass
+                    
+        print(f"Cleared {count} cache files")
+
+    def _create_cache_key(self, func_name: str, args: tuple, kwargs: dict) -> str:
+        """Create unique cache key based on function name and arguments"""
+        # Handle numpy arrays specially
+        processed_args = []
+        for arg in args:
+            if isinstance(arg, np.ndarray):
+                # Use array shape, mean and std for the key
+                processed_args.append(f"array_{arg.shape}_{np.mean(arg):.4f}_{np.std(arg):.4f}")
+            else:
+                processed_args.append(str(arg))
+
+        # Create key string
+        key_data = f"{func_name}:{processed_args}:{sorted(kwargs.items())}"
+        return hashlib.md5(key_data.encode()).hexdigest()
