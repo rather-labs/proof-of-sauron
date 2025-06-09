@@ -3,6 +3,10 @@ import pandas as pd
 from typing import Dict, List, Tuple
 from scipy.stats import entropy
 from sklearn.preprocessing import StandardScaler
+import logging
+
+from core.utils.math import safe_sigmoid
+logger = logging.getLogger(__name__)
 
 class StatisticalAnalyzer:
     def __init__(self):
@@ -105,15 +109,13 @@ class StatisticalAnalyzer:
                         if len(finite_values) > 0:
                             metrics[f'{feature}_mean'] = float(np.mean(finite_values))
                             # Higher values indicate AI generation
-                            metrics[f'{feature}_ai_score'] = float(
-                                1.0 / (1.0 + np.exp(-5 * (np.mean(finite_values) - 0.5)))
-                            )
+                            metrics[f'{feature}_ai_score'] = safe_sigmoid(np.mean(finite_values), 5, 0.5)
                         else:
                             metrics[f'{feature}_mean'] = 0.0
                             metrics[f'{feature}_ai_score'] = 0.5
 
         except Exception as e:
-            print(f"Error in texture pattern analysis: {str(e)}")
+            logger.error(f"Error in texture pattern analysis: {str(e)}")
 
         return metrics
 
@@ -136,31 +138,28 @@ class StatisticalAnalyzer:
                         if len(finite_values) > 0:
                             metrics[f'{feature}_mean'] = float(np.mean(finite_values))
                             # More gradient variation indicates AI
-                            metrics[f'{feature}_ai_score'] = float(
-                                1.0 / (1.0 + np.exp(-5 * (np.mean(finite_values) - 0.3)))
-                            )
+                            metrics[f'{feature}_ai_score'] = safe_sigmoid(np.mean(finite_values), 5, 0.3)
                         else:
                             metrics[f'{feature}_mean'] = 0.0
                             metrics[f'{feature}_ai_score'] = 0.5
 
         except Exception as e:
-            print(f"Error in gradient pattern analysis: {str(e)}")
+            logger.error(f"Error in gradient pattern analysis: {str(e)}")
 
         return metrics
 
     def _compute_ai_probability(self, metrics: Dict[str, float]) -> float:
         """Compute AI probability with corrected interpretation"""
         try:
-            # Updated weights with higher sensitivity for B.jpg and D.jpg detection
             weights = {
                 # Region variation (higher in AI images) - increased weights
-                'region_entropy_var_mean': 0.45,      # Higher variance suggests AI (increased)
+                'region_entropy_var_mean': 0.45,      # Higher variance suggests AI
                 'region_mean_var_mean': 0.35,         # Higher variance suggests AI
                 'region_std_var_mean': 0.3,           # Higher variance suggests AI
 
                 # Texture patterns (relative variance higher in AI) - increased weights
-                'texture_kl_relative_var_mean': 0.5,     # Key discriminator (increased)
-                'texture_js_relative_var_mean': 0.45,    # Key discriminator (increased)
+                'texture_kl_relative_var_mean': 0.5,     # Key discriminator
+                'texture_js_relative_var_mean': 0.45,    # Key discriminator
                 'texture_wasserstein_relative_var_mean': 0.4,  # Secondary feature
 
                 # Direct AI scores from pattern analysis - increased weights
@@ -190,8 +189,8 @@ class StatisticalAnalyzer:
 
             # Convert to probability with increased sensitivity (steeper sigmoid)
             # Increased from 12 to 15 for steeper curve
-            return float(np.clip(1 / (1 + np.exp(-15 * (score - 0.45))), 0, 1))
+            return float(np.clip(safe_sigmoid(score, 15, 0.45), 0, 1))
 
         except Exception as e:
-            print(f"Error computing AI probability: {str(e)}")
+            logger.error(f"Error computing AI probability: {str(e)}")
             return 0.5
