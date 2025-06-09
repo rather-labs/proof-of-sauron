@@ -12,6 +12,7 @@ from scipy.stats import entropy, wasserstein_distance
 from scipy.spatial.distance import jensenshannon
 
 from core.utils.constants import ORIENTATIONS_DEFAULT, DEFAULT_EPSILON
+from utils.cache import Cache
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +36,8 @@ class TextureAnalyzer:
 
         logger.info("TextureAnalyzer initialized")
 
-    def compute_texture_features(self, tile: Image.Image) -> Optional[Dict[str, float]]:
+    @Cache()
+    def compute_texture_features(self, tile: Image.Image) -> Dict[str, float]:
         """Analyze texture patterns focusing on natural vs AI characteristics"""
         try:
             metrics: Dict[str, float] = dict()
