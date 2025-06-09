@@ -73,3 +73,18 @@ class Cache:
         # Create key string
         key_data = f"{func_name}:{processed_args}:{sorted(kwargs.items())}"
         return hashlib.md5(key_data.encode()).hexdigest()
+
+    def memoize(func: Callable) -> Callable:
+        """Memory-based memoization decorator for faster access"""
+        cache = {}
+
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            # Create key from arguments
+            key = str(args) + str(sorted(kwargs.items()))
+
+            if key not in cache:
+                cache[key] = func(*args, **kwargs)
+            return cache[key]
+
+        return wrapper
