@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 
-from core.analyzer.tiler import TileExtractor
+from core.tiler import TileExtractor
 from tests.fixtures import square_image, rectangle_image, tile_array
 
 @pytest.fixture
