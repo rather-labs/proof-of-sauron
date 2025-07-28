@@ -4,6 +4,8 @@ from core.features.wavelets import WaveletAnalyzer
 from core.features.spatial import SpatialAnalyzer
 from typing import List, Dict
 import logging
+import numpy as np
+from PIL import Image
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(message)s')
@@ -36,3 +38,36 @@ class AggregatorAnalyzer:
                 results.append({})
 
         return results
+    
+    @Cache()
+    def analyze_image(image_path: str, max_tiles: int = 32, batch_size: int = 2) -> Dict:
+        """Analyze an image with parallel processing and caching"""
+        try:
+            start.time = time.time()
+            logger.info(f"Analyzing image: {image_path}...")
+
+            # Load image
+            img = _load_image(image_path)
+             # Check for early noise detection
+            early_result = _check_early_noise_detection(img)
+
+            if early_result:
+                early_result['processing_time'] = time.time() - start_time
+                return early_result
+
+        except Exception as e:
+            logger.error(f"Critical error in image analysis: {str(e)}")
+            return {'ai_score': 0.5, 'error': str(e)}
+
+    def _load_image(image_path: str) -> Image:
+        """Load and validate an image from the given path."""
+        try:
+            img = Image.open(image_path)
+            logger.info(f"Successfully loaded image: size={img.size}, mode={img.mode}")
+            return img
+        except Exception as e:
+            logger.error(f"Failed to load image {image_path}: {str(e)}")
+            raise
+
+    def _check_early_noise_detection(img) -> Optional[Dict]:
+        return None
