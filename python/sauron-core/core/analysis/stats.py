@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Tuple
-from scipy.stats import entropy
+from typing import Dict, List
 from sklearn.preprocessing import StandardScaler
 import logging
 
@@ -152,21 +151,27 @@ class StatisticalAnalyzer:
         """Compute AI probability with corrected interpretation"""
         try:
             weights = {
-                # Region variation (higher in AI images) - increased weights
+                # Region variation (higher in AI images)
                 'region_entropy_var_mean': 0.45,      # Higher variance suggests AI
                 'region_mean_var_mean': 0.35,         # Higher variance suggests AI
                 'region_std_var_mean': 0.3,           # Higher variance suggests AI
 
-                # Texture patterns (relative variance higher in AI) - increased weights
+                # Texture patterns (relative variance higher in AI)
                 'texture_kl_relative_var_mean': 0.5,     # Key discriminator
                 'texture_js_relative_var_mean': 0.45,    # Key discriminator
                 'texture_wasserstein_relative_var_mean': 0.4,  # Secondary feature
 
-                # Direct AI scores from pattern analysis - increased weights
+                # Direct AI scores from pattern analysis
                 'texture_kl_relative_var_ai_score': 0.5,
                 'texture_js_relative_var_ai_score': 0.45,
-                'gradient_entropy_var_ai_score': 0.4,
-                'gradient_mean_var_ai_score': 0.35
+                
+                #'gradient_entropy_var_ai_score': 0.4,
+                #'gradient_mean_var_ai_score': 0.35
+
+                # Gradient patterns (higher in AI images) 
+                'gradient_entropy_var_mean': 0.20,     # Higher entropy suggests AI
+                'gradient_mean_var_mean': 0.15,        # Higher mean suggests AI
+                'gradient_var_mean_mean': 0.12         # Higher variance suggests AI                
             }
 
             # Compute weighted score
