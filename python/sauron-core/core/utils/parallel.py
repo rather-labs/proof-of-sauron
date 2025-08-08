@@ -27,7 +27,7 @@ class ParallelProcessor:
         return Parallel(n_jobs=self.n_jobs)(
             delayed(func)(item) for item in items
         )
-    
+
     def process_batched(self, func: Callable, items: List[Any], batch_size: int = 100) -> List[Any]:
         """Process items in parallel with batching"""
         results = []
@@ -37,14 +37,14 @@ class ParallelProcessor:
             results.extend(batch_results)
         return results
 
-    def process_tiles(self, tiles: List[np.ndarray], 
-                     analyzers: List[Callable], 
+    def process_tiles(self, tiles: List[np.ndarray],
+                     analyzers: List[Callable],
                      batch_size: int = 4) -> List[Dict[str, float]]:
         """Process image tiles in parallel with multiple analyzers"""
 
         # Split tiles into batches
         batches = [
-            tiles[i:i + batch_size] 
+            tiles[i:i + batch_size]
             for i in range(0, len(tiles), batch_size)
         ]
 
@@ -55,11 +55,11 @@ class ParallelProcessor:
 
         # Flatten results
         return [
-            metric 
-            for batch_result in results 
+            metric
+            for batch_result in results
             for metric in batch_result
         ]
-    
+
         def compute_pairwise_divergence(self, histograms: List[np.ndarray],
                                   divergence_func: Callable,
                                   batch_size: int = 10) -> List[float]:

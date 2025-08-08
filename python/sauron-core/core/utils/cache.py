@@ -15,7 +15,7 @@ class Cache:
         def wrapper(*args, **kwargs) -> Any:
             # Check for no_cache keyword argument
             no_cache = kwargs.pop('no_cache', False)
-            
+
             # Create cache key from function name and arguments
             key = self._create_cache_key(func.__name__, args, kwargs)
             cache_path = os.path.join(self.cache_dir, f"{key}.pkl")
@@ -38,16 +38,16 @@ class Cache:
                     pickle.dump(result, f)
             except Exception as e:
                 print(f"Warning: Could not cache result: {e}")
-                
+
             return result
-            
+
         return wrapper
-    
+
     def clear_cache(self, prefix=None):
         """Clear all or specific cache files"""
         if not os.path.exists(self.cache_dir):
             return
-            
+
         count = 0
         for filename in os.listdir(self.cache_dir):
             if prefix is None or filename.startswith(prefix):
@@ -56,7 +56,7 @@ class Cache:
                     count += 1
                 except Exception:
                     pass
-                    
+
         print(f"Cleared {count} cache files")
 
     def _create_cache_key(self, func_name: str, args: tuple, kwargs: dict) -> str:

@@ -11,13 +11,13 @@ def test_compute_texture_divergence(analyzer, square_image):
      # Create a list of tiles for testing
     tiles = [square_image, square_image.copy()]  # Two identical images
     metrics = analyzer.compute_texture_divergence(tiles)
-    
+
     # Assert that it returns a dictionary (basic test)
     assert isinstance(metrics, dict)
 
 def test_compute_histogram(analyzer):
     """Test histogram computation"""
-    
+
     arr = np.array([0.1, 0.2, 0.3, 0.4, 0.5])
     hist = compute_histogram(arr)
 
@@ -29,12 +29,12 @@ def test_texture_features_computation(analyzer, square_image):
     """Test texture features computation"""
 
     metrics = analyzer.compute_texture_features(square_image)
-    
+
     assert isinstance(metrics, dict)
-        
+
     # Uniform image should have low entropy
     assert metrics['global_entropy'] < 0.3
-    
+
     # Should have low variation between regions
     assert metrics['region_entropy_var'] < 0.01
     assert metrics['region_divergence_mean'] < 0.01

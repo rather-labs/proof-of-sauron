@@ -15,7 +15,7 @@ class SpatialAnalyzer:
         Compute spatial distribution  metrics for a given tile,
         performing gradient computation, texture uniformity, and inter-pixel correlation
         """
-        
+
         metrics = {
             'texture_uniformity_h': 0.0,
             'texture_uniformity_v': 0.0,
@@ -23,8 +23,8 @@ class SpatialAnalyzer:
             'correlation_v': 0.0,
             'contrast_variance': 0.0
         }
-        
-        try:     
+
+        try:
             if isinstance(tile, Image.Image):
                 # Convert to grayscale
                 gray_tile = np.array(tile.convert('L'))
@@ -56,9 +56,9 @@ class SpatialAnalyzer:
 
         except Exception as e:
             print(f"Error in spatial metrics: {str(e)}")
-        
+
         return metrics
-    
+
     def compute_inter_tile_divergence(self, tiles):
         """Compute statistical divergence between tiles"""
         metrics = {}
@@ -90,16 +90,16 @@ class SpatialAnalyzer:
         """
         Compute the normalized auto-correlation of a given flattened signal
         Calculates the average of normalized correlations for lags k=1 to n-1.
-        
+
         https://numpy.org/doc/2.2/reference/generated/numpy.correlate.html
         """
         try:
             signal_flatten = signal.flatten()
             n = len(signal_flatten)
-            
+
             if n <= 1:
                 return 0.0
-            
+
             # Center the signal
             # y[n] = x[n] - mean(x)
             y = signal_flatten - np.mean(signal_flatten)
@@ -116,7 +116,7 @@ class SpatialAnalyzer:
             # Sum r[1:] / r[0] and divide by the number of terms (n - 1)
             # Ensure n-1 is not zero, already handled by the n <= 1 check
             average_normalized_correlation = float(np.sum(r[1:] / r[0]) / (n - 1))
-            
+
             return average_normalized_correlation
 
         except Exception as e:
@@ -128,10 +128,10 @@ class SpatialAnalyzer:
         Compute the average local contrast using sliding window
         The contrast is calculated for each window,
         and the mean of these contrast values (normalized to [0, 1])
-        
+
         https://en.wikipedia.org/w/index.php?title=Contrast_(vision)#Michelson_contrast
         """
-      
+
         image_float = tile.astype(np.float32)
         local_min = minimum_filter(image_float, size=window_size, mode='reflect')
         local_max = maximum_filter(image_float, size=window_size, mode='reflect')
@@ -139,7 +139,7 @@ class SpatialAnalyzer:
         # epsilon is added to avoid division by zero
         epsilon = 1e-6
 
-        # Michelson Contrast is defined as: 
+        # Michelson Contrast is defined as:
         # c = ( max - min ) / ( max - min + epsilon )
         numerator = local_max - local_min
         denominator = local_max + local_min + epsilon
@@ -147,5 +147,5 @@ class SpatialAnalyzer:
 
         # Normalize contrast to [0, 1]
         local_contrast = np.clip(contrast, 0, 1)
-        
+
         return local_contrast

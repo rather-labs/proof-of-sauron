@@ -14,11 +14,11 @@ def sample_tile():
     """Create a simple test image for wavelet analysis."""
     # Simple 64x64 grayscale image with a gradient
     tile = np.zeros((64, 64), dtype=np.float32)
-    
+
     # Add a simple gradient from top to bottom
     for i in range(64):
         tile[i, :] = i / 64.0
-        
+
     return tile
 
 # the end game of fixture parameterization to test the wavelet metrics against different well known patterns
@@ -51,10 +51,10 @@ def synthetic_image(request):
 
 def test_directional_sensitivity(wavelet_analyzer, synthetic_image):
     """Test if wavelet metrics respond appropriately to directional patterns"""
-    
+
     img, expected_energy = synthetic_image
     metrics = wavelet_analyzer.compute_wavelet_metrics(img)
-    
+
     if 'horizontal' in synthetic_image[0]:
         # Should show higher energy in horizontal coefficients
         assert metrics['wavelet_l1'] > metrics['wavelet_l2']

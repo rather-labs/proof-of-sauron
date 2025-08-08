@@ -36,17 +36,17 @@ class WaveletAnalyzer:
                 h_energy = np.mean(np.abs(h))
                 v_energy = np.mean(np.abs(v))
                 d_energy = np.mean(np.abs(d))
-                
+
                 # Calculate average energy
                 level_energy = (h_energy + v_energy + d_energy) / 3
-                
+
                 # Calculate directional imbalance (higher in AI-generated images)
                 dir_ratio = max(h_energy, v_energy, d_energy) / (min(h_energy, v_energy, d_energy) + 1e-10)
-                
+
                 # Enhance the wavelet coefficient with directional awareness
                 # This makes the algorithm more sensitive to the regular patterns in AI images
                 enhanced_energy = level_energy * (1.0 + 0.2 * dir_ratio)
-                
+
                 metrics[f'wavelet_l{i}'] = self._normalize(enhanced_energy)
                 level_energies.append(enhanced_energy)
 
@@ -64,11 +64,11 @@ class WaveletAnalyzer:
         except Exception as e:
             print(f"Error computing wavelet metrics: {str(e)}")
             return {}
-        
+
     def _normalize(self, value: float) -> float:
         """Normalize value to [0,1] range"""
         return 1 / (1 + np.exp(-value * 10))
-    
+
     def _get_max_possible_level(self, image_shape) -> int:
         """Calculate the maximum possible decomposition level for an image."""
         return pywt.dwt_max_level(min(image_shape), self.wavelet)

@@ -36,7 +36,7 @@ def test_compute_local_entropy_uniform(analyzer, uniform_image):
     """Test local entropy on a uniform image (should be 0)"""
 
     window_size = 5
-   
+
     mean_local_entropy = analyzer.compute_local_entropy(uniform_image, window_size=window_size)
     # For a uniform image, the entropy of every window should be 0
     assert np.isclose(mean_local_entropy, 0.0)

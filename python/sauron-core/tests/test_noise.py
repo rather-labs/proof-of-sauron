@@ -11,11 +11,11 @@ def test_normalize(analyzer):
     """Test _normalize function"""
     # Adding a tolerance for floating point comparisons is good practice
     assert np.isclose(analyzer._normalize(0, 1), 0.5)
-    
+
     # Check the runtime warning source - large negative inputs to exp
     # It's expected that very large positive/negative inputs saturate
     assert analyzer._normalize(1000, 1) > 0.99
-    
+
     # For large negative numbers, exp(-(-large)/scale) = exp(large) -> overflow
     # The result should be close to 0. Let's test a less extreme value first
     # assert analyzer._normalize(-1000, 1) < 0001
@@ -37,14 +37,14 @@ def test_create_hf_mask(analyzer):
     assert mask[0, 0] #Top-left should be True
 
 @pytest.mark.parametrize("image_fixture, expected_noise", [
-    # Adjusted hf_energy for gradient_image slightly    
+    # Adjusted hf_energy for gradient_image slightly
     ("uniform_image", {"hf_energy": (0.49, 0.51), "noise_variance": (0.0, 0.5)}),
     ("random_image", {"hf_energy": (0.4, 0.52), "noise_variance": (0.4, 1.0)}),
     ("gradient_image", {"hf_energy": (0.1, 0.51), "noise_variance": (0.1, 0.51)})
 ])
 def test_compute_noise_metrics(analyzer, request, image_fixture, expected_noise):
     """Test noise metrics computation"""
-   
+
     image = request.getfixturevalue(image_fixture)
     metrics = analyzer.compute_noise_metrics(image)
 

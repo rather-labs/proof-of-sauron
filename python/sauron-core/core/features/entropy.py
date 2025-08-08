@@ -12,7 +12,7 @@ class EntropyAnalyzer:
         steepness represent how sharply the function transition between 0 and 1
         """
         return 1 / (1 + np.exp(-steepness * (x - center)))
-    
+
     def compute_texture_metrics(self, tile):
         """Compute multiple texture metrics for a tile, (numpy array)"""
 
@@ -27,24 +27,24 @@ class EntropyAnalyzer:
         metrics['correlation_v'] = correlation_v
 
         return metrics
-    
-    def compute_entropy(self, tile): 
+
+    def compute_entropy(self, tile):
         """Compute the entropy of an image tile in grey"""
-        
+
         # Entropy (information content)
         hist = np.histogram(tile, bins=256, range=(0, 256))[0]
         hist = hist / hist.sum() # Normalize
 
         # Normalize by maximum possible entropy (log2(256) = 8)
         return entropy(hist, base=2) / 8 # Normalize to [0,1]
-    
-    def compute_local_entropy(self, tile, window_size=9): 
+
+    def compute_local_entropy(self, tile, window_size=9):
         """
         Compute the average local Shannon entropy using sliding window
-        The entropy is calculated for each window, 
+        The entropy is calculated for each window,
         and the mean of these entropy values (normalized to [0, 1])
         """
-        
+
         if isinstance(tile, Image.Image):
             tile = np.array(tile.convert('L'))
 
@@ -64,5 +64,5 @@ class EntropyAnalyzer:
 
                 # Calculate the entropy of the current window and store it the position (i,j)
                 local_entropy[i,j] = self.compute_entropy(window)
-        
+
         return np.mean(local_entropy)

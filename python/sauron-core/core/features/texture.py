@@ -44,7 +44,7 @@ class TextureAnalyzer:
             gray_tile = self._preprocess_image(tile)
             if gray_tile is None:
                 return metrics
-                        
+
             # Spatial Features
             spatial_metrics = self.spatial_analyzer.compute_spatial_metrics(gray_tile)
             metrics.update(spatial_metrics) # Adds spatial keys directly
@@ -54,7 +54,7 @@ class TextureAnalyzer:
             metrics.update(noise_metrics) # Adds noise keys directly
 
             # Entropy Features
-            metrics['global_entropy'] = self.entropy_analyzer.compute_entropy(gray_tile) 
+            metrics['global_entropy'] = self.entropy_analyzer.compute_entropy(gray_tile)
             metrics['entropy_local_mean'] = self.entropy_analyzer.compute_local_entropy(gray_tile)
 
             # Analyze sub-regions for natural variation
@@ -100,10 +100,10 @@ class TextureAnalyzer:
             metrics.update(grad_metrics)
 
             return metrics
-            
+
         except Exception as e:
             logging.error(f"Error in texture analysis: {e}")
-        
+
         return None
 
     def compute_texture_divergence(self, tiles: List[Image.Image]) -> Dict[str, float]:
@@ -113,7 +113,7 @@ class TextureAnalyzer:
         # Need at least 2 tiles to compute divergence
         if len(tiles) < 2:
             return metrics
-        
+
         try:
             # Preprocess tiles
             processed_tiles = []
@@ -121,43 +121,43 @@ class TextureAnalyzer:
                 processed = self._preprocess_image(tile)
                 if processed is not None:
                     processed_tiles.append(processed)
-            
+
             # Need at least 2 valid processed tiles
             if len(processed_tiles) < 2:
                 return metrics
-                
+
             # Compute histograms for each tile
             histograms = [compute_histogram(tile.flatten(), self.epsilon) for tile in processed_tiles]
-            
+
             # Calculate pairwise divergences between histograms
             div_values: Dict[str, List[float]] = {
                 'kl_div': [],
                 'js_div': [],
                 'wasserstein_dist': []
             }
-            
+
             for i in range(len(histograms)):
                 for j in range(i + 1, len(histograms)):
                     kl = entropy(histograms[i], histograms[j])
                     js = jensenshannon(histograms[i], histograms[j])
                     wd = wasserstein_distance(histograms[i], histograms[j])
-                    
+
                     if not np.isnan(kl) and not np.isinf(kl):
                         div_values['kl_div'].append(kl)
                     if not np.isnan(js) and not np.isinf(js):
                         div_values['js_div'].append(js)
                     if not np.isnan(wd) and not np.isinf(wd):
                         div_values['wasserstein_dist'].append(wd)
-            
+
             # Calculate aggregate statistics
             for key, values in div_values.items():
                 if values:
                     metrics[f"{key}_mean"] = float(np.mean(values))
                     metrics[f"{key}_std"] = float(np.std(values))
                     metrics[f"{key}_max"] = float(np.max(values))
-        
+
             return metrics
-        
+
         except Exception as e:
             logger.error(f"Error in texture divergence: {e}")
         return {}  # Return empty dict on error, not None
@@ -165,35 +165,35 @@ class TextureAnalyzer:
     def _compute_gradient_features(self, image: np.ndarray) -> Dict[str, float]:
         """Calculate image gradient features for texture analysis."""
         metrics: Dict[str, float] = {}
-        
+
         try:
             # Compute X and Y gradients using simple differencing
             grad_x = np.diff(image, axis=1)
             grad_y = np.diff(image, axis=0)
-            
+
             # Compute gradient magnitude (append zeros to match original shape)
             mag_x = np.append(grad_x, np.zeros((image.shape[0], 1), dtype=np.float32), axis=1)
             mag_y = np.append(grad_y, np.zeros((1, image.shape[1]), dtype=np.float32), axis=0)
-            
-            # Gradient magnitude 
+
+            # Gradient magnitude
             grad_magnitude = np.sqrt(mag_x**2 + mag_y**2)
-            
+
             # Extract metrics
             metrics['gradient_mean'] = float(np.mean(grad_magnitude))
             metrics['gradient_std'] = float(np.std(grad_magnitude))
             metrics['gradient_energy'] = float(np.sum(grad_magnitude**2) / grad_magnitude.size)
-            
+
             # Gradient direction histogram (8 bins)
             dirs = np.arctan2(mag_y, mag_x)
             hist, _ = np.histogram(dirs, bins=8, range=(-np.pi, np.pi))
             hist = hist / np.sum(hist)
-            
+
             # Gradient direction entropy (normalized)
             metrics['gradient_direction_entropy'] = float(entropy(hist + 1e-10) / np.log(8))
-            
+
         except Exception as e:
             logger.warning(f"Error computing gradient features: {e}")
-        
+
         return metrics
 
     def _preprocess_image(self, tile: Image.Image) -> Optional[np.ndarray]:
@@ -203,21 +203,21 @@ class TextureAnalyzer:
             gray_tile = self._convert_to_grayscale(tile)
             if gray_tile is None:
                 return None
-                
+
             # Normalize using percentiles
             gray_tile = self._normalize_percentiles(gray_tile)
             return gray_tile
-                
+
         except Exception as e:
             logger.error(f"Error: {e}")
             return None
-        
+
     def _normalize_percentiles(self, tile_list: np.ndarray) -> np.ndarray:
         """Normalize array to [0, 1] range using percentiles."""
         p1, p99 = np.percentile(tile_list, (1, 99))
         norm_factor = max(p99 - p1, self.epsilon)
 
-        # Avoid division by zero 
+        # Avoid division by zero
         return np.float32(np.clip((tile_list - p1) / norm_factor, 0, 1))
 
     def _convert_to_grayscale(self, tile: Image.Image) -> Optional[np.ndarray]:
@@ -227,19 +227,19 @@ class TextureAnalyzer:
             # Handle PIL Image
             if isinstance(tile, Image.Image):
                 result = np.array(tile.convert('L'), dtype=np.float32)
-                
+
             if isinstance(tile, np.ndarray):
                 # Already grayscale
                 if tile.ndim == 2:
                     result = tile.astype(np.float32)
                 elif tile.ndim == 3:
                     result = np.mean(tile, axis=-1).astype(np.float32)
-            
+
             return result
-        
+
         except Exception:
             return None
-        
+
     def _split_into_regions(self, image, n):
         """Split image into n x n regions for comparative analysis."""
         h, w = image.shape

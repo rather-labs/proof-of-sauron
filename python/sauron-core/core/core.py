@@ -5,10 +5,10 @@ from email.mime import image
 
 
 class SauronCore:
-    
+
     def __init__(self, tile_size):
         self.tile_size = TileExtractor(tile_size)
-    
+
     def process_image(self):
         try:
             current_path = Path(__file__).parent.parent
@@ -24,7 +24,7 @@ class SauronCore:
 
             print(f"Successfully opened image: {img}")
             return img
-        
+
         except Exception as e:
             print(f"Error processing image: {e}")
             return None

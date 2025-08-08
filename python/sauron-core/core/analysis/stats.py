@@ -164,14 +164,14 @@ class StatisticalAnalyzer:
                 # Direct AI scores from pattern analysis
                 'texture_kl_relative_var_ai_score': 0.5,
                 'texture_js_relative_var_ai_score': 0.45,
-                
+
                 #'gradient_entropy_var_ai_score': 0.4,
                 #'gradient_mean_var_ai_score': 0.35
 
-                # Gradient patterns (higher in AI images) 
+                # Gradient patterns (higher in AI images)
                 'gradient_entropy_var_mean': 0.20,     # Higher entropy suggests AI
                 'gradient_mean_var_mean': 0.15,        # Higher mean suggests AI
-                'gradient_var_mean_mean': 0.12         # Higher variance suggests AI                
+                'gradient_var_mean_mean': 0.12         # Higher variance suggests AI
             }
 
             # Compute weighted score

@@ -13,12 +13,12 @@ class AIImageClassifier:
             'entropy', 'correlation_h', 'correlation_v',
             'noise', 'wavelet_total', 'contrast'
         ]
-    
+
     def prepare_features(self, metrics: Dict[str, float]) -> np.ndarray:
         """Convert metrics dictionary to feature vector"""
         features = [metrics[col] for col in self.feature_columns]
         return np.array(features).reshape(1, -1)
-    
+
     def predict_probability(self, metrics: Dict[str, float]) -> float:
         """Predict probability of AI-generated image"""
         features = self.prepare_features(metrics)
